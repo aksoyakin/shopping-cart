@@ -1,5 +1,6 @@
 package com.aksoyakin.shoppingcart.service;
 
+import com.aksoyakin.shoppingcart.model.dto.ProductDto;
 import com.aksoyakin.shoppingcart.model.entity.Product;
 import com.aksoyakin.shoppingcart.model.request.AddProductRequest;
 import com.aksoyakin.shoppingcart.model.request.ProductUpdateRequest;
@@ -29,4 +30,8 @@ public interface ProductService {
     List<Product> getProductsByBrandAndName(String brand, String name);
 
     Long countProductsByBrandAndName(String brand, String name);
+
+    List<ProductDto> getConvertedProducts(List<Product> products);
+
+    ProductDto convertToDto(Product product);
 }
