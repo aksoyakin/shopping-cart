@@ -1,5 +1,6 @@
 package com.aksoyakin.shoppingcart.service;
 
+import com.aksoyakin.shoppingcart.exceptions.AlreadyExistException;
 import com.aksoyakin.shoppingcart.exceptions.ResourceNotFoundException;
 import com.aksoyakin.shoppingcart.model.entity.User;
 import com.aksoyakin.shoppingcart.model.request.CreateUserRequest;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
                     user.setFirstName(request.getFirstName());
                     user.setLastName(request.getLastName());
                     return userRepository.save(user);
-                }) . orElseThrow(() -> new ResourceNotFoundException(request.getEmail() + " already exists!"));
+                }) . orElseThrow(() -> new AlreadyExistException(request.getEmail() + " already exists!"));
     }
 
     @Override
