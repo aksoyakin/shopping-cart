@@ -8,13 +8,14 @@ import com.aksoyakin.shoppingcart.model.entity.Product;
 import com.aksoyakin.shoppingcart.model.enums.OrderStatus;
 import com.aksoyakin.shoppingcart.repository.OrderRepository;
 import com.aksoyakin.shoppingcart.repository.ProductRepository;
+import com.aksoyakin.shoppingcart.service.CartService;
 import com.aksoyakin.shoppingcart.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -23,15 +24,39 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CartService cartService;
+
+    @Override
+    public Order getOrder(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+    }
+
+    @Override
+    public List<Order> getUserOrders(Long userId){
+        return orderRepository.findByUserId(userId);
+    }
 
     @Override
     public Order placeOrder(Long userId) {
-        return null;
+        Cart cart = cartService.getCartByUserId(userId);
+
+        Order order = createOrder(cart);
+        List<OrderItem> orderItemList = createOrderItems(order, cart);
+
+        order.setOrderItems(new HashSet<>(orderItemList));
+        order.setOrderTotalAmount(calculateTotalAmount(orderItemList));
+
+        Order saavedOrder = orderRepository.save(order);
+
+        cartService.clearCart(cart.getId());
+
+        return saavedOrder;
     }
 
     private Order createOrder(Cart cart){
         Order order = new Order();
-        // TODO: set the user..
+        order.setUser(cart.getUser());
         order.setOrderStatus(OrderStatus.PENDING);
         order.setOrderDate(LocalDate.now());
         return order;
@@ -61,9 +86,5 @@ public class OrderServiceImpl implements OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    @Override
-    public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
-    }
+
 }
