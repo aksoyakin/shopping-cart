@@ -1,6 +1,7 @@
 package com.aksoyakin.shoppingcart.service.impl;
 
 import com.aksoyakin.shoppingcart.exceptions.ResourceNotFoundException;
+import com.aksoyakin.shoppingcart.model.dto.OrderDto;
 import com.aksoyakin.shoppingcart.model.entity.Cart;
 import com.aksoyakin.shoppingcart.model.entity.Order;
 import com.aksoyakin.shoppingcart.model.entity.OrderItem;
@@ -11,6 +12,7 @@ import com.aksoyakin.shoppingcart.repository.ProductRepository;
 import com.aksoyakin.shoppingcart.service.CartService;
 import com.aksoyakin.shoppingcart.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,16 +27,22 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
+    private final ModelMapper modelMapper;
 
     @Override
-    public Order getOrder(Long orderId) {
+    public OrderDto getOrder(Long orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+                .map(this :: convertToDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found!"));
     }
 
     @Override
-    public List<Order> getUserOrders(Long userId){
-        return orderRepository.findByUserId(userId);
+    public List<OrderDto> getUserOrders(Long userId){
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders
+                .stream()
+                .map(this :: convertToDto)
+                .toList();
     }
 
     @Override
@@ -84,6 +92,10 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> item.getPrice()
                         .multiply(new BigDecimal(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private OrderDto convertToDto(Order order){
+        return modelMapper.map(order, OrderDto.class);
     }
 
 
