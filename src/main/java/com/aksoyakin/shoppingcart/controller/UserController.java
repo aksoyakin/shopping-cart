@@ -2,6 +2,7 @@ package com.aksoyakin.shoppingcart.controller;
 
 import com.aksoyakin.shoppingcart.exceptions.AlreadyExistException;
 import com.aksoyakin.shoppingcart.exceptions.ResourceNotFoundException;
+import com.aksoyakin.shoppingcart.model.dto.UserDto;
 import com.aksoyakin.shoppingcart.model.entity.User;
 import com.aksoyakin.shoppingcart.model.request.CreateUserRequest;
 import com.aksoyakin.shoppingcart.model.request.UserUpdateRequest;
@@ -25,8 +26,9 @@ public class UserController {
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId){
         try {
             User user = userService.getUserById(userId);
+            UserDto userDto = userService.convertToUserToDto(user);
             return ResponseEntity
-                    .ok(new ApiResponse("Success!", user));
+                    .ok(new ApiResponse("Success!", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity
                     .status(NOT_FOUND)
@@ -38,7 +40,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request){
         try {
             User user = userService.createUser(request);
-            return ResponseEntity.ok(new ApiResponse("Create User Success!", user));
+            UserDto userDto = userService.convertToUserToDto(user);
+            return ResponseEntity.ok(new ApiResponse("Create User Success!", userDto));
         } catch (AlreadyExistException e) {
             return ResponseEntity
                     .status(CONFLICT)
@@ -50,8 +53,9 @@ public class UserController {
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId){
         try {
             User user = userService.updateUser(request, userId);
+            UserDto userDto = userService.convertToUserToDto(user);
             return ResponseEntity
-                    .ok(new ApiResponse("Update User Success!", user));
+                    .ok(new ApiResponse("Update User Success!", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity
                     .status(NOT_FOUND)

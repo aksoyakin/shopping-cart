@@ -1,6 +1,7 @@
 package com.aksoyakin.shoppingcart.service;
 
 import com.aksoyakin.shoppingcart.model.entity.Cart;
+import com.aksoyakin.shoppingcart.model.entity.User;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,7 @@ public interface CartService {
 
     BigDecimal getTotalPrice(Long id);
 
-    Long initializeNewCart();
+    Cart initializeNewCart(User user);
 
     Cart getCartByUserId(Long userId);
 }

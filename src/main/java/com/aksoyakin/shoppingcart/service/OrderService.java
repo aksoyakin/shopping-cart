@@ -12,4 +12,6 @@ public interface OrderService {
     Order placeOrder(Long userId);
 
     OrderDto getOrder(Long orderId);
+
+    OrderDto convertToDto(Order order);
 }

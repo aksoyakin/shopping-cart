@@ -1,12 +1,15 @@
-package com.aksoyakin.shoppingcart.service;
+package com.aksoyakin.shoppingcart.service.impl;
 
 import com.aksoyakin.shoppingcart.exceptions.AlreadyExistException;
 import com.aksoyakin.shoppingcart.exceptions.ResourceNotFoundException;
+import com.aksoyakin.shoppingcart.model.dto.UserDto;
 import com.aksoyakin.shoppingcart.model.entity.User;
 import com.aksoyakin.shoppingcart.model.request.CreateUserRequest;
 import com.aksoyakin.shoppingcart.model.request.UserUpdateRequest;
 import com.aksoyakin.shoppingcart.repository.UserRepository;
+import com.aksoyakin.shoppingcart.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +19,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
@@ -52,5 +57,10 @@ public class UserServiceImpl implements UserService {
                 .ifPresentOrElse(userRepository::delete, () -> {
                     throw new ResourceNotFoundException("User not found!");
                 });
+    }
+
+    @Override
+    public UserDto convertToUserToDto(User user) {
+        return modelMapper.map(user, UserDto.class);
     }
 }
