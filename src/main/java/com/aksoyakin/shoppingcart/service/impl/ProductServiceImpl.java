@@ -1,5 +1,6 @@
 package com.aksoyakin.shoppingcart.service.impl;
 
+import com.aksoyakin.shoppingcart.exceptions.AlreadyExistException;
 import com.aksoyakin.shoppingcart.exceptions.ProductNotFoundException;
 import com.aksoyakin.shoppingcart.model.dto.ImageDto;
 import com.aksoyakin.shoppingcart.model.dto.ProductDto;
@@ -35,6 +36,10 @@ public class ProductServiceImpl implements ProductService {
         // if no, then save it as a new category
         // the set as the product category
 
+        if(productExists(request.getName(), request.getBrand())){
+            throw new AlreadyExistException(request.getBrand() + " " + request.getName() +" already exists, you may update this product instead!");
+        }
+
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
                     Category newCategory = new Category(request.getCategory().getName());
@@ -42,6 +47,10 @@ public class ProductServiceImpl implements ProductService {
                 });
         request.setCategory(category);
         return productRepository.save(createProduct(request,category));
+    }
+
+    private boolean productExists(String name, String brand){
+        return productRepository.existsByNameAndBrand(name, brand);
     }
 
     private Product createProduct(AddProductRequest request, Category category) {

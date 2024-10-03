@@ -1,5 +1,6 @@
 package com.aksoyakin.shoppingcart.controller;
 
+import com.aksoyakin.shoppingcart.exceptions.AlreadyExistException;
 import com.aksoyakin.shoppingcart.exceptions.ResourceNotFoundException;
 import com.aksoyakin.shoppingcart.model.dto.ProductDto;
 import com.aksoyakin.shoppingcart.model.entity.Product;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -51,9 +51,9 @@ public class ProductController {
             Product theProduct = productService.addProduct(product);
             ProductDto productDto = productService.convertToDto(theProduct);
             return ResponseEntity.ok(new ApiResponse("Add product success!", productDto));
-        } catch (Exception e) {
+        } catch (AlreadyExistException e) {
             return ResponseEntity
-                    .status(INTERNAL_SERVER_ERROR)
+                    .status(CONFLICT)
                     .body(new ApiResponse(e.getMessage(), null));
         }
     }
